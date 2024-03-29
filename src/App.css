@@ -1,0 +1,88 @@
+.container-main {
+  display: grid;
+  grid-template-columns: 345px 345px 413px;
+  grid-gap: 20px;
+  margin: auto;
+  justify-content: center;
+  height: auto;
+}
+
+h1 {
+  font-family: Poppins;
+  font-size: 24px;
+  font-weight: 700;
+  line-height: 36px;
+  letter-spacing: 0.02em;
+  text-align: left;
+}
+
+.section {
+  border: 1px solid #ccc;
+  height: fit-content;
+  padding: 10px;
+}
+
+.input-field {
+  width: 305px;
+  height: 37px;
+  padding: 8px 12px;
+  gap: 0px;
+  border-radius: 5px;
+  border: 1px solid rgba(0, 0, 0, 0.2);
+  opacity: 1;
+  margin-bottom: 10px;
+}
+
+.form-label {
+  font-family: Poppins;
+  font-size: 14px;
+  font-weight: 300;
+  line-height: 21px;
+  letter-spacing: 0.02em;
+  text-align: left;
+}
+
+.section-heading {
+  font-family: Poppins;
+  font-weight: 600;
+  font-size: 18px;
+}
+
+.checkbox-container {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 10px;
+}
+
+.checkbox-container label {
+  margin-bottom: 5px;
+}
+
+.charges-summary {
+  background-color: #f0f0f0;
+  padding: 10px;
+}
+
+.charges-summary table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.charges-summary th,
+.charges-summary td {
+  padding: 5px;
+  text-align: left;
+}
+
+.charges-summary th {
+  background-color: #e0e0e0;
+}
+
+button {
+  background-color: rgba(93, 92, 255, 1);
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  cursor: pointer;
+  margin-top: 20px;
+}
