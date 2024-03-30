@@ -1,8 +1,10 @@
 import "./App.css";
+import Header from "./components/Header";
 
 function App() {
   return (
     <div>
+      <Header />
       <div className="container mx-auto">
         <div className="grid grid-cols-10 gap-4">
           <div className="col-span-3">
@@ -88,9 +90,9 @@ function App() {
             <div className="section">
               <h2 className="section-heading">Customer Information</h2>
               <label className="form-label" htmlFor="first-name">
-                First Name*
-              </label>{" "}
-              <br />
+                First Name<span className=" text-red-700">*</span>
+              </label>
+
               <input
                 type="text"
                 id="first-name"
@@ -98,8 +100,9 @@ function App() {
                 className="input-field"
               />
               <label className="form-label" htmlFor="last-name">
-                Last Name*
+                Last Name<span className=" text-red-700">*</span>
               </label>
+
               <input
                 type="text"
                 id="last-name"
@@ -107,8 +110,9 @@ function App() {
                 className="input-field"
               />
               <label className="form-label" htmlFor="email">
-                Email*
+                Email<span className=" text-red-700">*</span>
               </label>
+
               <input
                 type="text"
                 id="email"
@@ -116,8 +120,9 @@ function App() {
                 className="input-field"
               />
               <label className="form-label" htmlFor="phone">
-                Phone*
+                Phones<span className=" text-red-700">*</span>
               </label>
+
               <input
                 type="text"
                 id="phone"
@@ -125,11 +130,12 @@ function App() {
                 className="input-field"
               />
             </div>
-            <div className="section">
+            <div className="section mt-3">
               <h2 className="section-heading">Additional Charges</h2>
               <div className="checkbox-container">
                 <label className="form-label">
-                  <input type="checkbox" /> Collision Damage Waiver: $9.00
+                  <input type="checkbox" value="9.00" /> Collision Damage
+                  Waiver: $9.00
                 </label>
                 <label className="form-label">
                   <input type="checkbox" /> Liability Insurance: $15.00
