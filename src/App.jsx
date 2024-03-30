@@ -1,7 +1,31 @@
+import { useState } from "react";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
 import "./App.css";
 import Header from "./components/Header";
 
 function App() {
+  const [pickupDateTime, setPickupDateTime] = useState(new Date());
+  const [returnDateTime, setReturnDateTime] = useState(new Date());
+  const [duration, setDuration] = useState({ hours: 0, minutes: 0 });
+
+  const handlePickupChange = (date) => {
+    setPickupDateTime(date);
+    calculateDuration(date, returnDateTime);
+  };
+
+  const handleReturnChange = (date) => {
+    setReturnDateTime(date);
+    calculateDuration(pickupDateTime, date);
+  };
+
+  const calculateDuration = (pickupDate, returnDate) => {
+    const diffInMillis = Math.abs(returnDate - pickupDate);
+    const hours = Math.floor(diffInMillis / (1000 * 60 * 60));
+    const minutes = Math.floor((diffInMillis % (1000 * 60 * 60)) / (1000 * 60));
+    setDuration({ hours, minutes });
+  };
+
   return (
     <div>
       <Header />
@@ -10,38 +34,29 @@ function App() {
           <div className="col-span-3">
             <div className="section">
               <h2 className="section-heading">Reservation Details</h2>
-              <label className="form-label" htmlFor="reservation-id">
-                Reservation ID
-              </label>
-              <input
-                type="text"
-                id="reservation-id"
-                name="reservation-id"
-                className="input-field"
-              />
-
               <label className="form-label" htmlFor="pickup-date">
-                Pickup Date*
+                Pickup Date and Time*
               </label>
-              <input
-                type="text"
-                id="pickup-date"
-                name="pickup-date"
-                placeholder="Select Date and Time"
-                className="input-field"
+              <br />
+              <DatePicker
+                className="custom-date-picker"
+                selected={pickupDateTime}
+                onChange={handlePickupChange}
+                showTimeSelect
+                dateFormat="MMMM d, yyyy h:mm aa"
               />
-
               <label className="form-label" htmlFor="return-date">
-                Return Date*
-              </label>
-              <input
-                type="text"
-                id="return-date"
-                name="return-date"
-                placeholder="Select Date and Time"
-                className="input-field"
-              />
-
+                Return Date and Time*
+              </label>{" "}
+              <br />
+              <DatePicker
+                className="custom-date-picker"
+                selected={returnDateTime}
+                onChange={handleReturnChange}
+                showTimeSelect
+                dateFormat="MMMM d, yyyy h:mm aa"
+              />{" "}
+              <br />
               <label className="form-label" htmlFor="duration">
                 Duration
               </label>
@@ -49,11 +64,10 @@ function App() {
                 type="text"
                 id="duration"
                 name="duration"
-                value="1 Week 1 Day"
+                value={`${duration.hours} hours ${duration.minutes} minutes`}
                 readOnly
                 className="input-field"
               />
-
               <label className="form-label" htmlFor="discount">
                 Discount
               </label>
