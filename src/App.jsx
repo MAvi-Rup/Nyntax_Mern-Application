@@ -1,13 +1,35 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import "./App.css";
 import Header from "./components/Header";
+import useCarList from "./hooks/useCarlist";
 
 function App() {
-  const [pickupDateTime, setPickupDateTime] = useState(new Date());
-  const [returnDateTime, setReturnDateTime] = useState(new Date());
+  const [pickupDateTime, setPickupDateTime] = useState(null);
+  const [returnDateTime, setReturnDateTime] = useState(null);
   const [duration, setDuration] = useState({ hours: 0, minutes: 0 });
+  const { carList, loading, error } = useCarList();
+  const [filteredCar, setFilteredCar] = useState([]);
+  const [selectedType, setSelectedType] = useState("All");
+
+  useEffect(() => {
+    if (!loading && !error) {
+      handleFilterCar();
+    }
+  }, [carList, loading, error, selectedType]);
+
+  const handleChangeType = (e) => {
+    setSelectedType(e.target.value);
+  };
+
+  const handleFilterCar = () => {
+    if (selectedType === "All") {
+      setFilteredCar(carList);
+    } else {
+      setFilteredCar(carList.filter((car) => car.type === selectedType));
+    }
+  };
 
   const handlePickupChange = (date) => {
     setPickupDateTime(date);
@@ -26,6 +48,14 @@ function App() {
     setDuration({ hours, minutes });
   };
 
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
+  if (error) {
+    return <div>Error: {error}</div>;
+  }
+
   return (
     <div>
       <Header />
@@ -39,6 +69,7 @@ function App() {
               </label>
               <br />
               <DatePicker
+                placeholderText="Select Date and Time"
                 className="custom-date-picker"
                 selected={pickupDateTime}
                 onChange={handlePickupChange}
@@ -51,6 +82,7 @@ function App() {
               <br />
               <DatePicker
                 className="custom-date-picker"
+                placeholderText="Select Date and Time"
                 selected={returnDateTime}
                 onChange={handleReturnChange}
                 showTimeSelect
@@ -84,18 +116,24 @@ function App() {
                 Vehicle Type*
               </label>
               <select
-                id="vehicle-type"
-                name="vehicle-type"
-                className="input-field"
+                id="car-type"
+                onChange={handleChangeType}
+                value={selectedType}
+                className="select-vehicle"
               >
-                <option value="">Select Vehicle Type</option>
+                <option value="All">All</option>
+                <option value="Sedan">Sedan</option>
+                <option value="SUV">SUV</option>
               </select>
-
-              <label className="form-label" htmlFor="vehicle">
-                Vehicle*
+              <label htmlFor="cars" className="form-label">
+                Select Vehicle:
               </label>
-              <select id="vehicle" name="vehicle" className="input-field">
-                <option value="">Select Vehicle</option>
+              <select id="cars" className="select-vehicle">
+                {filteredCar.map((car) => (
+                  <option key={car.id} value={`${car.make} ${car.model}`}>
+                    {car.make} {car.model}
+                  </option>
+                ))}
               </select>
             </div>
           </div>
