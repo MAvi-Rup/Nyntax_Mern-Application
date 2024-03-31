@@ -18,17 +18,26 @@ function App() {
   const [filteredCar, setFilteredCar] = useState([]);
   const [selectedType, setSelectedType] = useState("All");
 
-  const [firstName, setFirstNane] = useState("");
-  const [lastName, setLastNane] = useState("");
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
-  const [phoneNo, setPhoneNo] = useState("");
+  const [phone, setPhone] = useState("");
   const [discount, setDiscount] = useState("");
+  const [additionalCharges, setAdditionalCharges] = useState([]);
+  const [totalCharges, setTotalCharges] = useState(0);
 
   useEffect(() => {
     if (!loading && !error) {
       handleFilterCar();
     }
   }, [carList, loading, error, selectedType]);
+
+  useEffect(() => {
+    if (pickupDateTime && returnDateTime && filteredCar.length > 0) {
+      calculateDuration(pickupDateTime, returnDateTime);
+      calculateTotalCharges();
+    }
+  }, [pickupDateTime, returnDateTime, filteredCar, additionalCharges]);
 
   const handleChangeType = (e) => {
     setSelectedType(e.target.value);
@@ -44,12 +53,10 @@ function App() {
 
   const handlePickupChange = (date) => {
     setPickupDateTime(date);
-    calculateDuration(date, returnDateTime);
   };
 
   const handleReturnChange = (date) => {
     setReturnDateTime(date);
-    calculateDuration(pickupDateTime, date);
   };
 
   const calculateDuration = (pickupDate, returnDate) => {
@@ -64,6 +71,34 @@ function App() {
       setDuration({ weeks, days: days % 7, hours });
     } else {
       setDuration({ weeks: 0, days, hours });
+    }
+  };
+
+  const calculateTotalCharges = () => {
+    if (filteredCar.length > 0) {
+      let total = 0;
+      const selectedCar = filteredCar[0]; // Assuming only one car is selected
+      total += selectedCar.rates.weekly * duration.weeks;
+      total += selectedCar.rates.daily * duration.days;
+      total += selectedCar.rates.hourly * duration.hours;
+      additionalCharges.forEach((charge) => {
+        total += parseFloat(charge.value);
+      });
+      setTotalCharges(total);
+    }
+  };
+
+  const handleAdditionalChargeChange = (e) => {
+    const { checked, value } = e.target;
+    if (checked) {
+      setAdditionalCharges([
+        ...additionalCharges,
+        { name: e.target.name, value },
+      ]);
+    } else {
+      setAdditionalCharges(
+        additionalCharges.filter((charge) => charge.name !== e.target.name)
+      );
     }
   };
 
@@ -132,7 +167,7 @@ function App() {
                 id="discount"
                 name="discount"
                 className="input-field"
-                onChange={(e) => setDiscount(e.target.discount)}
+                onChange={(e) => setDiscount(e.target.value)}
                 value={discount}
               />
             </div>
@@ -176,7 +211,7 @@ function App() {
                 id="first-name"
                 name="first-name"
                 className="input-field"
-                onChange={(e) => setFirstNane(e.target.value)}
+                onChange={(e) => setFirstName(e.target.value)}
                 value={firstName}
               />
               <label className="form-label" htmlFor="last-name">
@@ -188,7 +223,7 @@ function App() {
                 id="last-name"
                 name="last-name"
                 className="input-field"
-                onChange={(e) => setLastNane(e.target.value)}
+                onChange={(e) => setLastName(e.target.value)}
                 value={lastName}
               />
               <label className="form-label" htmlFor="email">
@@ -212,22 +247,37 @@ function App() {
                 id="phone"
                 name="phone"
                 className="input-field"
-                onChange={(e) => setPhoneNo(e.target.value)}
-                value={phoneNo}
+                onChange={(e) => setPhone(e.target.value)}
+                value={phone}
               />
             </div>
             <div className="section mt-3">
               <h2 className="section-heading">Additional Charges</h2>
               <div className="checkbox-container">
                 <label className="form-label">
-                  <input type="checkbox" value="9.00" /> Collision Damage
-                  Waiver: $9.00
+                  <input
+                    type="checkbox"
+                    name="Collision Damage Waiver"
+                    value="9.00"
+                    onChange={handleAdditionalChargeChange}
+                  />{" "}
+                  Collision Damage Waiver: $9.00
                 </label>
                 <label className="form-label">
-                  <input type="checkbox" /> Liability Insurance: $15.00
+                  <input
+                    type="checkbox"
+                    name="Liability Insurance"
+                    onChange={handleAdditionalChargeChange}
+                  />{" "}
+                  Liability Insurance: $15.00
                 </label>
                 <label className="form-label">
-                  <input type="checkbox" /> Rental Tax: 11.5%
+                  <input
+                    type="checkbox"
+                    name="Rental Tax"
+                    onChange={handleAdditionalChargeChange}
+                  />{" "}
+                  Rental Tax: 11.5%
                 </label>
               </div>
             </div>
@@ -248,27 +298,32 @@ function App() {
                 <tbody>
                   <tr>
                     <td>Daily</td>
-                    <td>1</td>
-                    <td>$99.00</td>
-                    <td>$99.00</td>
+                    <td>{duration.days}</td>
+                    <td>${filteredCar[0]?.rates.daily}</td>
+                    <td>${filteredCar[0]?.rates.daily * duration.days}</td>
                   </tr>
                   <tr>
                     <td>Weekly</td>
-                    <td>1</td>
-                    <td>$390.00</td>
-                    <td>$390.00</td>
+                    <td>{duration.weeks}</td>
+                    <td>${filteredCar[0]?.rates.weekly}</td>
+                    <td>${filteredCar[0]?.rates.weekly * duration.weeks}</td>
                   </tr>
                   <tr>
-                    <td>Collision Damage Waiver</td>
-                    <td></td>
-                    <td>$9.00</td>
-                    <td>$9.00</td>
+                    <td>Hourly</td>
+                    <td>{duration.hours}</td>
+                    <td>${filteredCar[0]?.rates.hourly}</td>
+                    <td>${filteredCar[0]?.rates.hourly * duration.hours}</td>
                   </tr>
+                  {additionalCharges.map((charge, index) => (
+                    <tr key={index}>
+                      <td>{charge.name}</td>
+                      <td colSpan="2"></td>
+                      <td>${charge.value}</td>
+                    </tr>
+                  ))}
                   <tr>
                     <td>Total</td>
-                    <td></td>
-                    <td></td>
-                    <td>$498.00</td>
+                    <td colSpan="3">${totalCharges}</td>
                   </tr>
                 </tbody>
               </table>
