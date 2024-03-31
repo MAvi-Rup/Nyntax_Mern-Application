@@ -8,10 +8,21 @@ import useCarList from "./hooks/useCarlist";
 function App() {
   const [pickupDateTime, setPickupDateTime] = useState(null);
   const [returnDateTime, setReturnDateTime] = useState(null);
-  const [duration, setDuration] = useState({ hours: 0, minutes: 0 });
+  const [duration, setDuration] = useState({
+    weeks: 0,
+    days: 0,
+    hours: 0,
+  });
+
   const { carList, loading, error } = useCarList();
   const [filteredCar, setFilteredCar] = useState([]);
   const [selectedType, setSelectedType] = useState("All");
+
+  const [firstName, setFirstNane] = useState("");
+  const [lastName, setLastNane] = useState("");
+  const [email, setEmail] = useState("");
+  const [phoneNo, setPhoneNo] = useState("");
+  const [discount, setDiscount] = useState("");
 
   useEffect(() => {
     if (!loading && !error) {
@@ -43,9 +54,17 @@ function App() {
 
   const calculateDuration = (pickupDate, returnDate) => {
     const diffInMillis = Math.abs(returnDate - pickupDate);
-    const hours = Math.floor(diffInMillis / (1000 * 60 * 60));
-    const minutes = Math.floor((diffInMillis % (1000 * 60 * 60)) / (1000 * 60));
-    setDuration({ hours, minutes });
+    const days = Math.ceil(diffInMillis / (1000 * 60 * 60 * 24)); // Calculate total days
+    let hours = Math.floor(diffInMillis / (1000 * 60 * 60)); // Calculate total hours
+
+    // Convert hours to weeks if the duration is over 7 days
+    if (days >= 7) {
+      const weeks = Math.floor(days / 7);
+      hours -= weeks * 7 * 24;
+      setDuration({ weeks, days: days % 7, hours });
+    } else {
+      setDuration({ weeks: 0, days, hours });
+    }
   };
 
   if (loading) {
@@ -70,18 +89,19 @@ function App() {
               <br />
               <DatePicker
                 placeholderText="Select Date and Time"
-                className="custom-date-picker"
+                className="custom-date-picker lg:w-[430px]"
                 selected={pickupDateTime}
                 onChange={handlePickupChange}
                 showTimeSelect
                 dateFormat="MMMM d, yyyy h:mm aa"
               />
+              <br />
               <label className="form-label" htmlFor="return-date">
                 Return Date and Time*
               </label>{" "}
               <br />
               <DatePicker
-                className="custom-date-picker"
+                className="custom-date-picker lg:w-[430px]"
                 placeholderText="Select Date and Time"
                 selected={returnDateTime}
                 onChange={handleReturnChange}
@@ -96,7 +116,11 @@ function App() {
                 type="text"
                 id="duration"
                 name="duration"
-                value={`${duration.hours} hours ${duration.minutes} minutes`}
+                value={`${
+                  duration.weeks > 0 ? duration.weeks + " weeks " : ""
+                }${duration.days > 0 ? duration.days + " days " : ""}${
+                  duration.hours
+                } hours`}
                 readOnly
                 className="input-field"
               />
@@ -108,6 +132,8 @@ function App() {
                 id="discount"
                 name="discount"
                 className="input-field"
+                onChange={(e) => setDiscount(e.target.discount)}
+                value={discount}
               />
             </div>
             <div className="section mt-3">
@@ -150,6 +176,8 @@ function App() {
                 id="first-name"
                 name="first-name"
                 className="input-field"
+                onChange={(e) => setFirstNane(e.target.value)}
+                value={firstName}
               />
               <label className="form-label" htmlFor="last-name">
                 Last Name<span className=" text-red-700">*</span>
@@ -160,6 +188,8 @@ function App() {
                 id="last-name"
                 name="last-name"
                 className="input-field"
+                onChange={(e) => setLastNane(e.target.value)}
+                value={lastName}
               />
               <label className="form-label" htmlFor="email">
                 Email<span className=" text-red-700">*</span>
@@ -170,6 +200,8 @@ function App() {
                 id="email"
                 name="email"
                 className="input-field"
+                onChange={(e) => setEmail(e.target.value)}
+                value={email}
               />
               <label className="form-label" htmlFor="phone">
                 Phones<span className=" text-red-700">*</span>
@@ -180,6 +212,8 @@ function App() {
                 id="phone"
                 name="phone"
                 className="input-field"
+                onChange={(e) => setPhoneNo(e.target.value)}
+                value={phoneNo}
               />
             </div>
             <div className="section mt-3">
